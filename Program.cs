@@ -21,7 +21,7 @@ namespace lab3_16
             Console.WriteLine("Введите координаты каждой точки поочерёдно черед пробел:");
             string[] points = Console.ReadLine().Split(' ');
             for (int i = 0; i < size; ++i)
-                arr[i] = int.Parse(points[i]);
+                arr[i] = double.Parse(points[i]);
             return arr;
         }
 
@@ -31,7 +31,8 @@ namespace lab3_16
             
             for (int i = 0; i < size-5; i+=2) //-5 потому что иду тройками: последняя тройка включает в себя 6 элементов массива
             {
-                if ((arr[i] - arr[i + 2]) * (arr[i + 5] - arr[i + 1]) != (arr[i + 1] - arr[i + 3]) * (arr[i + 4] - arr[i]))
+                const double epsilon = 1e-10;
+                if (Math.Abs((arr[i] - arr[i + 2]) * (arr[i + 5] - arr[i + 1]) - (arr[i + 1] - arr[i + 3]) * (arr[i + 4] - arr[i])) > epsilon)
                 {
                     flag = true;
                     break;
@@ -83,21 +84,44 @@ namespace lab3_16
         }
         static void Main()
         {
-            int size = enter_size();
-            double[] arr = create_array(size);
-            double[] min_points = new double[6];
-
-            if (size <3 || !triangle_exist(arr, size))
-                Console.Write("Невозможно построить треугольник");
-
-            else
+            int option;
+            do
             {
-                double minR = task(arr, size, min_points);
+                Console.WriteLine("Меню\n1. Решение задачи\n2. Завершение работы\n");
 
-                Console.Write("Периметр: " + minR);
-                Console.Write("\nТочки:\n");
-                print_array(min_points);
-            }
+                bool isErrorOp = true;
+                do
+                {
+                    if (int.TryParse(Console.ReadLine(), out option) && (option >= 1 && option <= 2))
+                        isErrorOp = false;
+                    else
+                        Console.WriteLine("Ошибка! Вводимое значение должно быть 1 или 2. Попробуйте заново :)\n");
+                } while (isErrorOp);
+
+                if (option != 2)
+                {
+                    int size = enter_size();
+                    double[] arr = create_array(size);
+                    double[] min_points = new double[6];
+
+                    if (size < 3 || !triangle_exist(arr, size))
+                        Console.Write("Невозможно построить треугольник");
+
+                    else
+                    {
+                        double minR = task(arr, size, min_points);
+
+                        Console.Write("Периметр: " + minR);
+                        Console.Write("\nТочки:\n");
+                        print_array(min_points);
+                    }
+
+                    Console.WriteLine("\nНажмите у или Y, если хотите завершить программу:");
+                    string isExit = Console.ReadLine();
+                    if (isExit == "y" || isExit == "Y")
+                        option = 2;
+                }
+            } while (option != 2);
         }
     }
 }
